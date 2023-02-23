@@ -1,23 +1,55 @@
-import React from "react";
-import data from "./db/dataset.json";
+import React, { Suspense } from "react";
+import { Outlet, Route, Routes, useLocation } from "react-router-dom";
 import CommonLayout from "./layout/CommonLayout";
 import HomePage from "./pages/HomePage";
+import MenuPage from "./pages/MenuPage";
+import NavIndexContextProvider from "./context/NavIndexContext";
 
 function App() {
-  console.log(data);
+  const { pathname, hash, key } = useLocation();
+
+  React.useEffect(() => {
+    if (hash === "") {
+      window.scrollTo(0, 0);
+    } else {
+      setTimeout(() => {
+        const id = hash.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView();
+        }
+      }, 0);
+    }
+  }, [pathname, hash, key]);
+
   return (
-    <CommonLayout>
-      <div
-        style={{
-          height: "100%",
-          overflowY: "scroll",
-          overflowX: "hidden",
-          position: "relative",
-        }}
-      >
-        <HomePage />
-      </div>
-    </CommonLayout>
+    <Routes>
+      <Route path="/" element={<LayoutWrapper />}>
+        <Route index element={<HomePage />} />
+        <Route path="/menu" element={<MenuPage />} />
+      </Route>
+    </Routes>
+  );
+}
+
+function LayoutWrapper() {
+  return (
+    <NavIndexContextProvider>
+      <CommonLayout>
+        <div
+          style={{
+            height: "100%",
+            overflowY: "scroll",
+            overflowX: "hidden",
+            position: "relative",
+          }}
+        >
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <Outlet />
+          </Suspense>
+        </div>
+      </CommonLayout>
+    </NavIndexContextProvider>
   );
 }
 

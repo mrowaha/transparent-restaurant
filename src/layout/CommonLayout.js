@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 import { Layout, Menu, Space } from "antd";
 import styled from "styled-components";
@@ -6,7 +7,9 @@ import styled from "styled-components";
 import Header from "../components/Header";
 
 import classes from "./CommonLayout.module.css";
-import { HomeOutlined } from "@ant-design/icons";
+import { HomeOutlined, InfoCircleOutlined, MenuOutlined } from "@ant-design/icons";
+
+import { NavIndexContext } from "../context/NavIndexContext";
 
 const MenuItemLabel = styled.div`
   ::after {
@@ -31,21 +34,20 @@ const MenuItemStyles = {
 };
 
 function CommonLayout({ children }) {
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const {navIndex, setNavIndex} = React.useContext(NavIndexContext);
   const [currentMenuKey, setCurrentMenuKey] = React.useState("home");
 
-
   const handleSideBarMenuChange = (index) => {
-    setSelectedIndex(index);
+    setNavIndex(index);
     switch (index) {
       case 0:
         setCurrentMenuKey("home");
         return;
       case 1:
-        setCurrentMenuKey("home1");
+        setCurrentMenuKey("aboutus");
         return;
       case 2:
-        setCurrentMenuKey("home2");
+        setCurrentMenuKey("menu");
         return;
     }
   };
@@ -58,53 +60,72 @@ function CommonLayout({ children }) {
           <Menu
             mode="vertical"
             theme="light"
-            style={{ height: "100%", border: "none", backgroundColor: "#1D192B06" }}
+            style={{
+              height: "100%",
+              border: "none",
+              backgroundColor: "#1D192B06",
+            }}
             defaultSelectedKeys={["home"]}
             selectedKeys={[currentMenuKey]}
           >
             <Space direction="vertical" size={10} style={{ display: "flex" }}>
-              <MenuItemLabel label="home">
-                <Menu.Item
-                  key="home"
-                  onClick={() => handleSideBarMenuChange(0)}
-                  style={{
-                    ...MenuItemStyles,
-                    background: selectedIndex === 0 ? "#1D192B1F" : "inherit",
-                  }}
-                >
-                  <HomeOutlined style={{ color: "#1D192B" }} />
-                </Menu.Item>
-              </MenuItemLabel>
-              <MenuItemLabel label="home1">
-                <Menu.Item
-                  key="home1"
-                  onClick={() => handleSideBarMenuChange(1)}
-                  style={{
-                    ...MenuItemStyles,
-                    background: selectedIndex === 1 ? "#1D192B1F" : "inherit",
-                  }}
-                >
-                  <HomeOutlined style={{ color: "#1D192B" }} />
-                </Menu.Item>
-              </MenuItemLabel>
-              <MenuItemLabel label="home2">
-                <Menu.Item
-                  key="home2"
-                  onClick={() => handleSideBarMenuChange(2)}
-                  style={{
-                    ...MenuItemStyles,
-                    background: selectedIndex === 2 ? "#1D192B1F" : "inherit",
-                  }}
-                >
-                  <HomeOutlined style={{ color: "#1D192B" }} />
-                </Menu.Item>
-              </MenuItemLabel>
+              <NavLink to="/#home" onClick={() => handleSideBarMenuChange(0)}>
+                {({ isActive }) => (
+                  <MenuItemLabel label="Home">
+                    <Menu.Item
+                      key="home"
+                      style={{
+                        ...MenuItemStyles,
+                        background: isActive && navIndex === 0? "#1D192B1F" : "inherit",
+                      }}
+                    >
+                      <HomeOutlined style={{ color: "#1D192B" }} />
+                    </Menu.Item>
+                  </MenuItemLabel>
+                )}
+              </NavLink>
+              <NavLink
+                to="/#aboutus"
+                onClick={() => handleSideBarMenuChange(1)}
+              >
+                {({ isActive }) => (
+                  <MenuItemLabel label="About Us">
+                    <Menu.Item
+                      key="aboutus"
+                      style={{
+                        ...MenuItemStyles,
+                        background: isActive && navIndex === 1 ? "#1D192B1F" : "inherit",
+                      }}
+                    >
+                      <InfoCircleOutlined style={{ color: "#1D192B" }} />
+                    </Menu.Item>
+                  </MenuItemLabel>
+                )}
+              </NavLink>
+              <NavLink to="/menu">
+                {({ isActive }) => (
+                  <MenuItemLabel
+                    label="Menu"
+                    onClick={() => handleSideBarMenuChange(2)}
+                  >
+                    <Menu.Item
+                      key="menu"
+                      style={{
+                        ...MenuItemStyles,
+                        background: isActive ? "#1D192B1F" : "inherit",
+                      }}
+                    >
+                      <MenuOutlined style={{ color: "#1D192B" }} />
+                    </Menu.Item>
+                  </MenuItemLabel>
+                )}
+              </NavLink>
             </Space>
           </Menu>
         </Layout.Sider>
         <Layout.Content
           style={{
-            backgroundColor : "white"
+            backgroundColor: "white",
           }}
         >
           {children}

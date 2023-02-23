@@ -70,13 +70,13 @@ const GreetingsWrapper = styled.div`
     bottom: 0;
     left: -10rem;
     right: -10rem;
-    padding-top : 1rem;
+    padding-top: 1rem;
     background-color: white;
-    border-top: 2px solid #79747e;
+    border-top: 4px solid #79747e;
   }
 `;
 
-function Banner() {
+function BannerComponent() {
   return (
     <div
       style={{
@@ -85,6 +85,7 @@ function Banner() {
         flexDirection: "column",
         paddingTop: "12rem",
       }}
+      id="home"
     >
       <FoodCircleDiv>
         <Row style={{ height: "100%" }} gutter={[16, 16]}>
@@ -136,8 +137,21 @@ function Banner() {
       <GreetingsWrapper>
         <div>
           <Row>
-            <Col span={24} style={{display : "flex", justifyContent : "center"}}>
-              <Title level={1} style={{fontSize : "clamp(3rem, 12vw, 12rem)", color : "#79747E", fontFamily : "Amatic SC"}}>Welcome</Title>
+            <Col
+              span={24}
+              style={{ display: "flex", justifyContent: "center" }}
+            >
+              <Title
+                level={1}
+                style={{
+                  fontSize: "clamp(3rem, 10vw, 12rem)",
+                  color: "#79747E",
+                  fontFamily: "Amatic SC",
+                  textAlign: "center",
+                }}
+              >
+                Welcome To The Most Honest Restaurant
+              </Title>
             </Col>
           </Row>
         </div>
@@ -146,4 +160,4 @@ function Banner() {
   );
 }
 
-export default Banner;
+export default BannerComponent;

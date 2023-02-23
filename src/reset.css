@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap');
+
 * {
   margin : 0;
   padding : 0;
@@ -21,4 +24,20 @@
 
 body {
   overflow : hidden;
+}
+
+a { 
+  color: inherit;
+  text-decoration : inherit;
+}
+
+.ant-btn.btn-filled {
+  background-color: #6750A4;
+  border : 1px solid #6750A4;
+  color : white;
+}
+
+.ant-btn.btn-filled:hover {
+  background-color: white;
+  color : #6750A4;
 }
