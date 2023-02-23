@@ -1,0 +1,9 @@
+.app {
+  height : calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.layoutSider { 
+  overflow: auto;
+  left : 0;
+}
