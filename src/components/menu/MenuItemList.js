@@ -19,6 +19,9 @@ function MenuItemListComponent() {
               id={meal.id}
               name={meal.name}
               ingredients={meal.ingredients}
+              lowQualityPrice={meal.lowQualityPrice}
+              highQualityPrice={meal.highQualityPrice}
+              averagePrice={meal.averagePrice}
             />
           );
         })
@@ -27,10 +30,10 @@ function MenuItemListComponent() {
   );
 }
 
-function MenuItem({ id, name, ingredients }) {
+function MenuItem({ id, name, ingredients, lowQualityPrice, highQualityPrice, averagePrice }) {
   return (
     <Col span={24}>
-      <Card>
+      <Card style={{background : "#1D192B06", border : '1px solid #79747E'}}>
         <Row>
           <Col span={16}>
             <Title level={4} style={{ fontFamily: "Roboto" }}>
@@ -43,7 +46,8 @@ function MenuItem({ id, name, ingredients }) {
             )}
           </Col>
           <Col span={4}>
-            <Title level={5}>$$-$$$</Title>
+            <Title level={5}>${lowQualityPrice?.toFixed(2)}-${highQualityPrice?.toFixed(2)}</Title>
+            <Title level={5}>Avg: ${averagePrice?.toFixed(2)}</Title>
           </Col>
           <Col span={4}>
             <Link to={`${id}`}>

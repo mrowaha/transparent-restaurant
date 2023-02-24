@@ -18,16 +18,16 @@ const DropDownItem = styled.div`
 
 function SearchBarComponent() {
   const [searchByName, setSearchByName] = React.useState("");
-  const [searchByDietaryPref, setSearchByDietaryPref] = React.useState("none");
+  const [searchByFilter, setSearchByFilter] = React.useState("none");
   const { filterMealsToDisplay } = React.useContext(MealsContext);
 
   React.useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      filterMealsToDisplay(searchByName, searchByDietaryPref);
+      filterMealsToDisplay(searchByName, searchByFilter);
     }, 250);
 
     return () => clearTimeout(debounceTimeout);
-  }, [searchByName, searchByDietaryPref]);
+  }, [searchByName, searchByFilter]);
 
   const dietaryPref = React.useMemo(() => {
     const selections = [
@@ -36,8 +36,8 @@ function SearchBarComponent() {
         label: (
           <DropDownItem
             type="text"
-            onClick={() => setSearchByDietaryPref("none")}
-            selected={searchByDietaryPref === "none" ? true : false}
+            onClick={() => setSearchByFilter("none")}
+            selected={searchByFilter === "none" ? true : false}
           >
             None
           </DropDownItem>
@@ -48,8 +48,8 @@ function SearchBarComponent() {
         label: (
           <DropDownItem
             type="text"
-            onClick={() => setSearchByDietaryPref("vegan")}
-            selected={searchByDietaryPref === "vegan" ? true : false}
+            onClick={() => setSearchByFilter("vegan")}
+            selected={searchByFilter === "vegan" ? true : false}
           >
             Vegan
           </DropDownItem>
@@ -60,8 +60,8 @@ function SearchBarComponent() {
         label: (
           <DropDownItem
             type="text"
-            onClick={() => setSearchByDietaryPref("vegetarian")}
-            selected={searchByDietaryPref === "vegetarian" ? true : false}
+            onClick={() => setSearchByFilter("vegetarian")}
+            selected={searchByFilter === "vegetarian" ? true : false}
           >
             Vegetarian
           </DropDownItem>
@@ -72,16 +72,28 @@ function SearchBarComponent() {
         label: (
           <DropDownItem
             type="text"
-            onClick={() => setSearchByDietaryPref("average_lh")}
-            selected={searchByDietaryPref === "average_lh" ? true : false}
+            onClick={() => setSearchByFilter("average_lh")}
+            selected={searchByFilter === "average_lh" ? true : false}
           >
-            Average Price
+            Average Price<small>(low - high)</small>
+          </DropDownItem>
+        ),
+      },
+      {
+        key: "5",
+        label: (
+          <DropDownItem
+            type="text"
+            onClick={() => setSearchByFilter("average_hl")}
+            selected={searchByFilter === "average_hl" ? true : false}
+          >
+            Average Price<small>(high - low)</small>
           </DropDownItem>
         ),
       },
     ];
     return selections;
-  }, [searchByDietaryPref]);
+  }, [searchByFilter]);
 
   return (
     <>

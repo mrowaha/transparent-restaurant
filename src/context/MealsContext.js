@@ -53,125 +53,50 @@ function MealsContextProvider({ children }) {
     });
   }, []);
 
-  const filterMealsToDisplay = React.useCallback(
-    (byName, byDietaryPreference) => {
-      // if there are no filters set
-      if (byName === "" && byDietaryPreference === "none") {
-        setMealsToDisplay(allMealsData.current);
-        return;
+  const filterMealsToDisplay = React.useCallback((byName, byFilter) => {
+    setMealsToDisplay(() => {
+      let filtered = allMealsData.current;
+      if (byName !== "") {
+        let namedFilter = byName.toLowerCase();
+        filtered = filtered.filter((meal) =>
+          meal.name.toLowerCase().includes(namedFilter)
+        );
       }
 
-      //filter by name only
-      // if (byDietaryPreference === "none" && byName !== "") {
+      if (byFilter === "vegan" || byFilter === "vegetarian") {
+        filtered = filtered.filter(({ ingredients }) => {
+          for (const { name } of ingredients) {
+            let details = allIngredientsData.current.filter((ingredient) => {
+              return ingredient.name.toLowerCase().includes(name.toLowerCase());
+            })[0];
 
-      setMealsToDisplay(() => {
-        let filtered = allMealsData.current;
-        if (byName !== "") {
-          let namedFilter = byName.toLowerCase();
-          filtered = filtered.filter((meal) =>
-            meal.name.toLowerCase().includes(namedFilter)
-          );
-        }
-
-        if (byDietaryPreference !== "none") {
-          filtered = filtered.filter(({ ingredients }) => {
-            for (const { name } of ingredients) {
-              let details = allIngredientsData.current.filter((ingredient) => {
-                return ingredient.name
-                  .toLowerCase()
-                  .includes(name.toLowerCase());
-              })[0];
-
-              if (byDietaryPreference === "vegan") {
-                //a vegan meal is a meal that contains only vegan ingredients
-                if (!details.groups.includes("vegan")) {
-                  return false;
-                }
-              } else {
-                // a vegetarian meal is a meal that contains either vegan or vegetarian
-                if (
-                  !(
-                    details.groups.includes("vegetarian") ||
-                    details.groups.includes("vegan")
-                  )
-                ) {
-                  return false;
-                }
+            if (byFilter === "vegan") {
+              //a vegan meal is a meal that contains only vegan ingredients
+              if (!details.groups.includes("vegan")) {
+                return false;
+              }
+            } else {
+              // a vegetarian meal is a meal that contains either vegan or vegetarian
+              if (
+                !(
+                  details.groups.includes("vegetarian") ||
+                  details.groups.includes("vegan")
+                )
+              ) {
+                return false;
               }
             }
-            return true;
-          });
-        }
+          }
+          return true;
+        });
+      }
 
-        // sort by name before returning
-        filtered = filtered.sort(compareMealsByName);
-        return filtered;
-      });
-
-      // return;
-
-      //filter by dietary preference only
-      // if (byName === "" && byDietaryPreference !== "none") {
-      // if (byDietaryPreference !== "none") {
-      //   setMealsToDisplay(() => {
-      //     let filteredByDietaryPref = mealsToDisplay.filter(
-      //       ({ ingredients }) => {
-      //         for (const { name } of ingredients) {
-      //           let details = allIngredientsData.current.filter(
-      //             (ingredient) => {
-      //               return ingredient.name
-      //                 .toLowerCase()
-      //                 .includes(name.toLowerCase());
-      //             }
-      //           )[0];
-
-      //           if (byDietaryPreference === "vegan") {
-      //             //a vegan meal is a meal that contains only vegan ingredients
-      //             if (!details.groups.includes("vegan")) {
-      //               return false;
-      //             }
-      //           } else {
-      //             // a vegetarian meal is a meal that contains either vegan or vegetarian
-      //             if (
-      //               !(
-      //                 details.groups.includes("vegetarian") ||
-      //                 details.groups.includes("vegan")
-      //               )
-      //             ) {
-      //               return false;
-      //             }
-      //           }
-      //         }
-      //         return true;
-      //       }
-      //     );
-      //     filteredByDietaryPref =
-      //       filteredByDietaryPref.sort(compareMealsByName);
-      //     return filteredByDietaryPref;
-      //   });
-      // }
-
-      // //filter by both name and dietary preference
-      // setMealsToDisplay(() => {
-      //   let filtered = allMealsData.current.filter(meal => {
-      //     //check by ingredient first
-      //     for (const {name} of meal.ingredients) {
-      //       let details = allIngredientsData.current.filter(ingredient => ingredient.name.toLowerCase().includes(name.toLowerCase()))[0];
-      //       if (byDietaryPreference === "vegan") {
-      //         if (!details.groups.includes("vegan")) return false;
-      //       } else {
-      //         if (!(details.groups.includes("vegetarian") || details.groups.includes("vegan"))) return false;
-      //       }
-      //     }
-      //     // uptil here the meal satisfies the dietary filter preference
-      //     return meal.name.toLowerCase().includes(byName.toLowerCase());
-      //   })
-      //   filtered = filtered.sort(compareMealsByName);
-      //   return filtered;
-      // })
-    },
-    []
-  );
+      if (byFilter === "average_lh") filtered.sort(compareMealsByAvgPriceLH);
+      else if (byFilter === "average_hl") filtered.sort(compareMealsByAvgPriceHL);
+      else filtered.sort(compareMealsByName);
+      return [...filtered];
+    });
+  }, []);
 
   const getMealById = (id) => {
     return allMealsData.current.filter((meal) => meal.id === parseInt(id))[0];
@@ -203,13 +128,26 @@ function MealsContextProvider({ children }) {
 function compareMealsByName(first, second) {
   let firstName = first.name.toLowerCase();
   let secondName = second.name.toLowerCase();
-  if (firstName < secondName) {
-    return -1;
-  }
-  if (firstName > secondName) {
-    return 1;
-  }
+  if (firstName < secondName) return -1;
+  if (firstName > secondName) return 1;
   return 0;
+}
+
+function compareMealsByAvgPriceLH(first, second) {
+  let firstAvgPrice = first.averagePrice;
+  let secondAvgPrice = second.averagePrice;
+  if (firstAvgPrice < secondAvgPrice) return -1;
+  if (firstAvgPrice > secondAvgPrice) return 1;
+  return 0;
+}
+
+function compareMealsByAvgPriceHL(first, second) {
+  let firstAvgPrice = first.averagePrice;
+  let secondAvgPrice = second.averagePrice;
+  if (firstAvgPrice < secondAvgPrice) return 1;
+  if (firstAvgPrice > secondAvgPrice) return -1;
+  return 0;
+
 }
 
 export default MealsContextProvider;

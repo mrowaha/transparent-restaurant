@@ -22,6 +22,10 @@ function MenuByIdPage() {
     setConfirmation(true);
   };
 
+  const calculateAvgQuality = (ingredients) => {
+    setTotalQuality(prev => (prev / ingredients).toFixed(2))
+  }
+
   const onModalClose = () => {
     setConfirmation(false);
     navigate("/menu");
@@ -37,6 +41,7 @@ function MenuByIdPage() {
           totalQuality={totalQuality}
           setTotalQuality={setTotalQuality}
           handleConfirmMenu={handleConfirmMenu}
+          calculateAvgQuality={calculateAvgQuality}
         />
       </div>
       <Modal

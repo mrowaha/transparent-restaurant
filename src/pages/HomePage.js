@@ -30,8 +30,6 @@ function HomePage() {
       } else {
         setNavIndex(0);
       }
-    }, {
-      rootMargin : "-300px"  
     })
     observer.observe(aboutUsRef.current);
     

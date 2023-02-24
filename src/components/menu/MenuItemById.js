@@ -51,6 +51,7 @@ function MenuItemByIdComponent({
   setTotalPrice,
   setTotalQuality,
   handleConfirmMenu,
+  calculateAvgQuality
 }) {
   const [meal, setMeal] = React.useState(null);
   const [previousValues, setPreviousValues] = React.useState([]);
@@ -137,7 +138,7 @@ function MenuItemByIdComponent({
   return (
     <Form
       style={{ display: "flex", justifyContent: "center" }}
-      onFinish={handleConfirmMenu}
+      onFinish={() => {handleConfirmMenu(); calculateAvgQuality(meal.ingredients.length)}}
     >
       <Row gutter={[2, 16]} style={{ width: "80%" }}>
         <Col span={14}>
@@ -206,6 +207,7 @@ function MenuItemByIdComponent({
                   high
                 </Title>
               </Col>
+              <Divider />
               {React.Children.toArray(
                 meal.ingredients.map(({ name }, index) => {
                   const data = getQualityPrices(name);

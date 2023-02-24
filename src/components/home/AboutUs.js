@@ -11,7 +11,7 @@ const CardWrapperDiv = styled.div`
   position: relative;
   margin: 0 1rem;
   opacity : 0;
-  transition : opacity 2s ease-in;
+  transition : opacity 1s ease-in;
 
   &[fadeIn] {
     opacity : 1;
