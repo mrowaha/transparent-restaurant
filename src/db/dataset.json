@@ -42,7 +42,7 @@
       "id": 5,
       "name": "Pork chops with mashed potatoes and gravy",
       "ingredients": [
-        { "name": "Pork chops", "quantity": 115, "quantity_type": "gram" },
+        { "name": "Pork", "quantity": 115, "quantity_type": "gram" },
         {
           "name": "Mashed potatoes",
           "quantity": 120,
@@ -55,7 +55,7 @@
       "id": 6,
       "name": "Grilled salmon with roasted asparagus",
       "ingredients": [
-        { "name": "Salmon", "quantity": 85, "quantity_type": "gram" },
+        { "name": "Fish", "quantity": 85, "quantity_type": "gram" },
         { "name": "Asparagus", "quantity": 240, "quantity_type": "gram" }
       ]
     },

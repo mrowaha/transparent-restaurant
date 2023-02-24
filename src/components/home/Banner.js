@@ -95,6 +95,7 @@ function BannerComponent() {
               <img
                 src={process.env.PUBLIC_URL + "/img/meals/rice_and_chicken.jpg"}
                 style={{ width: "100%", borderRadius: 200 }}
+                alt="Rice and Chicken"
               />
             </ImageWrapper>
           </Col>
@@ -107,6 +108,7 @@ function BannerComponent() {
                   "/img/meals/pasta_with_marinara_sauce_and_vegetables.jpg"
                 }
                 style={{ width: "100%", borderRadius: 200 }}
+                alt="Pasta with Marinara Sauce and Vegetables"
               />
             </ImageWrapper>
           </Col>
@@ -119,6 +121,7 @@ function BannerComponent() {
                   "/img/meals/pasta_with_marinara_sauce_and_vegetables.jpg"
                 }
                 style={{ width: "100%", borderRadius: 200 }}
+                alt="Pasta with Marinara Sauce and Vegetables"
               />
             </ImageWrapper>
           </Col>
@@ -128,6 +131,7 @@ function BannerComponent() {
               <img
                 src={process.env.PUBLIC_URL + "/img/meals/rice_and_chicken.jpg"}
                 style={{ width: "100%", borderRadius: 200 }}
+                alt="Rice and Chicken"
               />
             </ImageWrapper>
           </Col>

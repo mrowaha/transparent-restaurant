@@ -5,7 +5,7 @@ import classes from "./Header.module.css";
 import { Layout, Row, Col, Typography } from "antd";
 const {Title} = Typography;
 
-function Header() {
+function HeaderComponent() {
   return (
     <Layout.Header>
       <Row className={classes.header}>
@@ -17,4 +17,4 @@ function Header() {
   );
 }
 
-export default Header;
+export default HeaderComponent;

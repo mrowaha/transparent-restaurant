@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { Layout, Menu, Space } from "antd";
 import styled from "styled-components";
 
-import Header from "../components/Header";
+import {Header} from "../components";
 
 import classes from "./CommonLayout.module.css";
 import { HomeOutlined, InfoCircleOutlined, MenuOutlined } from "@ant-design/icons";

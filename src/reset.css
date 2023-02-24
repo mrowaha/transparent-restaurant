@@ -4,6 +4,8 @@
 * {
   margin : 0;
   padding : 0;
+  user-select: none;
+  box-sizing: border-box;
 }
 
 *::-webkit-scrollbar {
@@ -40,4 +42,15 @@ a {
 .ant-btn.btn-filled:hover {
   background-color: white;
   color : #6750A4;
+}
+
+.ant-btn.btn-outlined {
+  background-color: white;
+  border : 1px solid #79747E;
+  color : #6750A4;
+}
+
+.ant-btn.btn-outlined:hover {
+  background-color: #6750A4;
+  color : white;
 }
