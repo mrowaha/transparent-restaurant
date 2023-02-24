@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Row, Col, Dropdown, Button } from "antd";
+import { Row, Col, Dropdown, Button, Badge } from "antd";
 import styled from "styled-components";
 
 import { MealsContext } from "../../context/MealsContext";
@@ -109,11 +109,13 @@ function SearchBarComponent() {
       </Col>
       <Col span={4}>
         <Dropdown menu={{ items: dietaryPref }} placement="bottom">
-          <Button
-            type="primary"
-            icon={<FilterOutlined />}
-            className="btn-outlined"
-          />
+          <Badge dot={searchByFilter !== "none"}>
+            <Button
+              type="primary"
+              icon={<FilterOutlined />}
+              className="btn-outlined"
+            />
+          </Badge>
         </Dropdown>
       </Col>
     </>

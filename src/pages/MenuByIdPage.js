@@ -15,6 +15,7 @@ function MenuByIdPage() {
   const navigate = useNavigate();
 
   const [totalQuality, setTotalQuality] = React.useState(0);
+  const avgQuality = React.useRef(0);
   const [totalPrice, setTotalPrice] = React.useState(0);
   const [confirmation, setConfirmation] = React.useState(false);
 
@@ -23,8 +24,8 @@ function MenuByIdPage() {
   };
 
   const calculateAvgQuality = (ingredients) => {
-    setTotalQuality(prev => (prev / ingredients).toFixed(2))
-  }
+    avgQuality.current = (totalQuality / ingredients).toFixed(2);
+  };
 
   const onModalClose = () => {
     setConfirmation(false);
@@ -58,7 +59,7 @@ function MenuByIdPage() {
           style: { width: "fit-content" },
         }}
         cancelButtonProps={{
-          style : {display : 'none'}
+          style: { display: "none" },
         }}
       >
         We have successfully received your order. Below are the details of your
@@ -74,10 +75,12 @@ function MenuByIdPage() {
             <Title level={5}>Quality Score :</Title>
           </Col>
           <Col span={12}>
-            <Title level={5}>{totalQuality}</Title>
+            <Title level={5}>{avgQuality.current}</Title>
           </Col>
         </Row>
       </Modal>
+      {/* Gap from bottom */}
+      <div style={{ width: "100%", height: "50px" }} />
     </MealsContextProvider>
   );
 }

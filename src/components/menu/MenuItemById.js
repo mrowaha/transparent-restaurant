@@ -10,6 +10,7 @@ import {
   Radio,
   Form,
   Tooltip,
+  Input,
 } from "antd";
 import { DoubleRightOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import styled from "styled-components";
@@ -51,7 +52,7 @@ function MenuItemByIdComponent({
   setTotalPrice,
   setTotalQuality,
   handleConfirmMenu,
-  calculateAvgQuality
+  calculateAvgQuality,
 }) {
   const [meal, setMeal] = React.useState(null);
   const [previousValues, setPreviousValues] = React.useState([]);
@@ -62,7 +63,9 @@ function MenuItemByIdComponent({
 
   const [previousPrices, setPreviousPrices] = React.useState([]);
 
-  const { getMealById, getQualityPrices } = React.useContext(MealsContext);
+  const { getMealById, getQualityPrices, getHighestQualityOnBudget } =
+    React.useContext(MealsContext);
+  const budgetRef = React.useRef(0);
 
   React.useEffect(() => {
     let mealFetched = getMealById(id);
@@ -135,151 +138,291 @@ function MenuItemByIdComponent({
     });
   };
 
+  const handleBudgetCheck = () => {
+    if (budgetRef.current < 0) {
+      window.alert('Budget Cannot be less than 0');
+      return;
+    }
+    let budgetMeal = getHighestQualityOnBudget(id, budgetRef.current);
+    console.log(budgetMeal);
+  };
+
   return (
-    <Form
-      style={{ display: "flex", justifyContent: "center" }}
-      onFinish={() => {handleConfirmMenu(); calculateAvgQuality(meal.ingredients.length)}}
-    >
-      <Row gutter={[2, 16]} style={{ width: "80%" }}>
-        <Col span={14}>
-          <Title level={2} style={{ fontFamily: "Roboto" }}>
-            {meal.name}
-          </Title>
-        </Col>
-        <Col span={5}>
-          <InformationDiv>
-            <Title
-              level={4}
-              style={{ fontFamily: "Amatic SC", color: "white" }}
-            >
-              Quality Score :
-            </Title>
-            <span>{averagedQuality}</span>
-          </InformationDiv>
-        </Col>
-        <Col span={5}>
-          <InformationDiv>
-            <Title
-              level={4}
-              style={{ fontFamily: "Amatic SC", color: "white" }}
-            >
-              Price ($):
-            </Title>
-            <span>{totalPrice}</span>
-          </InformationDiv>
-        </Col>
-        <Divider />
-        <Col span={24}>
-          <Card>
-            <Row gutter={[0, 20]}>
-              <Col span={6}>
-                <Title level={4} style={{ fontFamily: "Roboto" }}>
-                  Ingredients
-                </Title>
-              </Col>
-              <Col
-                span={6}
-                style={{ display: "flex", justifyContent: "center", gap: 5 }}
-              >
-                <Title level={5} style={{ fontFamily: "Roboto" }}>
-                  low
-                </Title>
-                <Tooltip title="+$0.1 per meal">
-                  <QuestionCircleOutlined style={{ color: "#79747E" }} />
-                </Tooltip>
-              </Col>
-              <Col
-                span={6}
-                style={{ display: "flex", justifyContent: "center", gap : 5 }}
-              >
-                <Title level={5} style={{ fontFamily: "Roboto" }}>
-                  medium
-                </Title>
-                <Tooltip title="+$0.05 per meal">
-                  <QuestionCircleOutlined style={{ color: "#79747E" }} />
-                </Tooltip>
-              </Col>
-              <Col
-                span={6}
-                style={{ display: "flex", justifyContent: "center" }}
-              >
-                <Title level={5} style={{ fontFamily: "Roboto" }}>
-                  high
-                </Title>
-              </Col>
-              <Divider />
-              {React.Children.toArray(
-                meal.ingredients.map(({ name }, index) => {
-                  const data = getQualityPrices(name);
-                  return (
-                    <>
-                      <Col span={6}>
-                        <Title level={5} style={{ fontFamily: "Roboto" }}>
-                          {name}
-                        </Title>
-                      </Col>
-                      <Col span={18}>
-                        <Form.Item
-                          name={`radio_${index}`}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please select an option",
-                            },
-                          ]}
-                        >
-                          <Radio.Group
-                            onChange={(e) =>
-                              handleQualityChange(e.target.value, name)
-                            }
-                            size="large"
-                            style={{
-                              width: "100%",
-                              display: "flex",
-                              justifyContent: "space-around",
-                            }}
-                          >
-                            <Radio
-                              value={`${10}|${data[2].price}|${data[2].suffix}`}
-                              style={RadioItemStyles}
-                            >
-                              ${data[2].price}/{data[2].suffix}
-                            </Radio>
-                            <Radio
-                              value={`${20}|${data[1].price}|${data[1].suffix}`}
-                              style={RadioItemStyles}
-                            >
-                              ${data[1].price}/{data[1].suffix}
-                            </Radio>
-                            <Radio
-                              value={`${30}|${data[0].price}|${data[0].suffix}`}
-                              style={RadioItemStyles}
-                            >
-                              ${data[0].price}/{data[0].suffix}
-                            </Radio>
-                          </Radio.Group>
-                        </Form.Item>
-                      </Col>
-                    </>
-                  );
-                })
-              )}
-            </Row>
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Button
-            type="primary"
-            shape="round"
-            className="btn-outlined"
-            htmlType="submit"
-            icon={<DoubleRightOutlined />}
+    <>
+      <Row style={{ display : 'flex', justifyContent : 'center', marginBottom : '1rem'}}>
+        <Col span={12}>
+          <Title
+            level={5}
+            style={{ fontFamily: "Roboto", textAlign: "center" }}
           >
-            Confirm Order
-          </Button>
+            On Budget? Enter your budget below and get the best possible quality
+          </Title>
+          <Input.Search
+            placeholder="enter budget"
+            type="number"
+            min={0}
+            onSearch={handleBudgetCheck}
+            onChange={(e) => (budgetRef.current = e.target.value)}
+          />
         </Col>
       </Row>
-    </Form>
+
+      <Form
+        style={{ display: "flex", justifyContent: "center" }}
+        onFinish={() => {
+          handleConfirmMenu();
+          calculateAvgQuality(meal.ingredients.length);
+        }}
+      >
+        <Row gutter={[2, 16]} style={{ width: "80%" }}>
+          <Divider />
+          <Col span={14}>
+            <Title level={2} style={{ fontFamily: "Roboto" }}>
+              {meal.name}
+            </Title>
+          </Col>
+          <Col span={5}>
+            <InformationDiv>
+              <Title
+                level={4}
+                style={{ fontFamily: "Amatic SC", color: "white" }}
+              >
+                Quality Score :
+              </Title>
+              <span>{averagedQuality}</span>
+            </InformationDiv>
+          </Col>
+          <Col span={5}>
+            <InformationDiv>
+              <Title
+                level={4}
+                style={{ fontFamily: "Amatic SC", color: "white" }}
+              >
+                Price ($):
+              </Title>
+              <span>{totalPrice}</span>
+            </InformationDiv>
+          </Col>
+
+          <Divider />
+          <Col span={24}>
+            <Card>
+              <Row gutter={[0, 20]}>
+                <Col span={6}>
+                  <Title level={4} style={{ fontFamily: "Roboto" }}>
+                    Ingredients
+                  </Title>
+                </Col>
+                <Col
+                  span={6}
+                  style={{ display: "flex", justifyContent: "center", gap: 5 }}
+                >
+                  <Title level={5} style={{ fontFamily: "Roboto" }}>
+                    low
+                  </Title>
+                  <Tooltip title="+$0.1 per meal">
+                    <QuestionCircleOutlined style={{ color: "#79747E" }} />
+                  </Tooltip>
+                </Col>
+                <Col
+                  span={6}
+                  style={{ display: "flex", justifyContent: "center", gap: 5 }}
+                >
+                  <Title level={5} style={{ fontFamily: "Roboto" }}>
+                    medium
+                  </Title>
+                  <Tooltip title="+$0.05 per meal">
+                    <QuestionCircleOutlined style={{ color: "#79747E" }} />
+                  </Tooltip>
+                </Col>
+                <Col
+                  span={6}
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
+                  <Title level={5} style={{ fontFamily: "Roboto" }}>
+                    high
+                  </Title>
+                </Col>
+                <Divider />
+                {React.Children.toArray(
+                  meal.ingredients.map(({ name }, index) => {
+                    const data = getQualityPrices(name);
+                    return (
+                      <>
+                        <Col span={6}>
+                          <Title level={5} style={{ fontFamily: "Roboto" }}>
+                            {name}
+                          </Title>
+                        </Col>
+                        <Col span={18}>
+                          <Form.Item
+                            name={`radio_${index}`}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select an option",
+                              },
+                            ]}
+                          >
+                            <Radio.Group
+                              onChange={(e) =>
+                                handleQualityChange(e.target.value, name)
+                              }
+                              size="large"
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "space-around",
+                              }}
+                            >
+                              <Radio
+                                value={`${10}|${data[2].price}|${
+                                  data[2].suffix
+                                }`}
+                                style={RadioItemStyles}
+                              >
+                                ${data[2].price}/{data[2].suffix}
+                              </Radio>
+                              <Radio
+                                value={`${20}|${data[1].price}|${
+                                  data[1].suffix
+                                }`}
+                                style={RadioItemStyles}
+                              >
+                                ${data[1].price}/{data[1].suffix}
+                              </Radio>
+                              <Radio
+                                value={`${30}|${data[0].price}|${
+                                  data[0].suffix
+                                }`}
+                                style={RadioItemStyles}
+                              >
+                                ${data[0].price}/{data[0].suffix}
+                              </Radio>
+                            </Radio.Group>
+                          </Form.Item>
+                        </Col>
+                      </>
+                    );
+                  })
+                )}
+              </Row>
+            </Card>
+          </Col>
+          <Divider />
+          <MenuItemOptions
+            mealId={id}
+            lowQualityPrice={meal.lowQualityPrice.toFixed(2)}
+            mediumQualityPrice={meal.mediumQualityPrice.toFixed(2)}
+            highQualityPrice={meal.highQualityPrice.toFixed(2)}
+          />
+          <Col span={4}>
+            <Button
+              type="primary"
+              shape="round"
+              className="btn-outlined"
+              htmlType="submit"
+              icon={<DoubleRightOutlined />}
+            >
+              Confirm Order
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+    </>
+  );
+}
+
+function MenuItemOptions({
+  mealId,
+  lowQualityPrice,
+  mediumQualityPrice,
+  highQualityPrice,
+}) {
+  const [details, setDetails] = React.useState([]);
+  const filteredDetails = React.useMemo(() => {
+    if (details.length === 0) {
+      return null;
+    }
+    let filtered = [];
+    let lowNames = [];
+    let mediumNames = [];
+    let highNames = [];
+    details.forEach(({ options }) => {
+      options.forEach(({ name, quality }) => {
+        switch (quality) {
+          case "high":
+            highNames.push(name);
+            break;
+          case "medium":
+            mediumNames.push(name);
+            break;
+          case "low":
+            lowNames.push(name);
+            break;
+        }
+      });
+    });
+    filtered.push(highNames);
+    filtered.push(mediumNames);
+    filtered.push(lowNames);
+    return filtered;
+  }, [details]);
+  const { getIngredientsDetails } = React.useContext(MealsContext);
+
+  React.useEffect(() => {
+    setDetails(() => getIngredientsDetails(mealId));
+  }, []);
+
+  return (
+    <Col span={24}>
+      <Card style={{ background: "#1D192B06", border: "1px solid #79747E" }}>
+        <Row gutter={[20, 0]}>
+          <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
+            <Title level={4} style={{ fontFamily: "Roboto" }}>
+              Options
+            </Title>
+          </Col>
+          <Divider />
+          <Col span={8}>
+            <Card
+              title="Low"
+              extra={"$" + `${lowQualityPrice}`}
+              style={{ fontFamily: "Roboto" }}
+            >
+              {React.Children.toArray(
+                filteredDetails &&
+                  filteredDetails[2].map((name) => <p>{name}</p>)
+              )}
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+              title="Medium"
+              extra={"$" + `${mediumQualityPrice}`}
+              style={{ fontFamily: "Roboto" }}
+            >
+              {React.Children.toArray(
+                filteredDetails &&
+                  filteredDetails[1].map((name) => <p>{name}</p>)
+              )}
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+              title="High"
+              extra={"$" + `${highQualityPrice}`}
+              style={{ fontFamily: "Roboto" }}
+            >
+              {React.Children.toArray(
+                filteredDetails &&
+                  filteredDetails[0].map((name) => <p>{name}</p>)
+              )}
+            </Card>
+          </Col>
+        </Row>
+      </Card>
+    </Col>
   );
 }
 

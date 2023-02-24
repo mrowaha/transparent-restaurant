@@ -12,6 +12,8 @@ export const MealsContext = React.createContext({
   filterMealsToDisplay: (byName, byDietaryPreference) => {},
   getMealById: (id) => {},
   getQualityPrices: (name) => {},
+  getIngredientsDetails: (id) => {},
+  getHighestQualityOnBudget: (id) => {},
 });
 
 function MealsContextProvider({ children }) {
@@ -92,7 +94,8 @@ function MealsContextProvider({ children }) {
       }
 
       if (byFilter === "average_lh") filtered.sort(compareMealsByAvgPriceLH);
-      else if (byFilter === "average_hl") filtered.sort(compareMealsByAvgPriceHL);
+      else if (byFilter === "average_hl")
+        filtered.sort(compareMealsByAvgPriceHL);
       else filtered.sort(compareMealsByName);
       return [...filtered];
     });
@@ -115,11 +118,123 @@ function MealsContextProvider({ children }) {
     return qualityPrices;
   };
 
+  const getIngredientsDetails = (id) => {
+    let meal = allMealsData.current.find((meal) => meal.id === parseInt(id));
+    // console.log("in get ingredients", meal);
+    let returnArr = [];
+    meal.ingredients.forEach((ingredient) => {
+      let details = allIngredientsData.current.find(
+        (detail) => detail.name === ingredient.name
+      );
+      returnArr.push(details);
+    });
+    return returnArr;
+  };
+
+  const getHighestQualityOnBudget = (id, budget) => {
+    let meal = {
+      ...allMealsData.current.find((meal) => meal.id === parseInt(id)),
+    };
+    //clean up the nesting
+    meal.ingredients = meal.ingredients.map((ingredient) => {
+      let details = allIngredientsData.current.find(
+        (detail) => detail.name === ingredient.name
+      );
+      ingredient = { ...ingredient, ...details };
+      return ingredient;
+    });
+    let cleanedUp = [];
+    meal.ingredients.forEach((ingredient) => {
+      ingredient.options.forEach(({ name, price, quality }) => {
+        cleanedUp.push({
+          name: name,
+          price: price,
+          quantity: ingredient.quantity,
+          parentType: ingredient.name,
+          quality: quality,
+        });
+      });
+    });
+    //generate all possibilites
+    let possibilities = [];
+    let tempOrderArr1, tempOrderArr2, tempOrderArr3;
+    let sum1, sum2, sum3;
+    for (let i = 0; i < cleanedUp.length; i++) {
+      tempOrderArr1 = [];
+      tempOrderArr1.push(cleanedUp[i]);
+      tempOrderArr2 = [];
+      tempOrderArr2.push(cleanedUp[i]);
+      tempOrderArr3 = [];
+      tempOrderArr3.push(cleanedUp[i]);
+
+      sum1 = (cleanedUp[i].quantity / 1000) * cleanedUp[i].price;
+      sum2 = sum1;
+      sum3 = sum1;
+      for (let j = 0; j < cleanedUp.length; j += 3) {
+        if (cleanedUp[j].parentType === cleanedUp[i].parentType) continue;
+        sum1 += (cleanedUp[j].quantity / 1000) * cleanedUp[j].price;
+        sum2 += (cleanedUp[j + 1].quantity / 1000) * cleanedUp[j + 1].price;
+        sum3 += (cleanedUp[j + 2].quantity / 1000) * cleanedUp[j + 2].price;
+        tempOrderArr1.push(cleanedUp[j]);
+        tempOrderArr2.push(cleanedUp[j + 1]);
+        tempOrderArr3.push(cleanedUp[j + 2]);
+      }
+      possibilities.push({ combination: [...tempOrderArr1], total: sum1 });
+      possibilities.push({ combination: [...tempOrderArr2], total: sum2 });
+      possibilities.push({ combination: [...tempOrderArr3], total: sum3 });
+    }
+
+    const consecutiveQualityScores = [];
+    for (let i = 0; i < possibilities.length; i++) {
+      let qualityScore = possibilities[i].combination.reduce((acc, curr) => {
+        switch (curr.quality) {
+          case "high":
+            return acc + 30;
+          case "medium":
+            return acc + 20;
+          case "low":
+            return acc + 10;
+        }
+      }, 0);
+      consecutiveQualityScores.push(
+        (qualityScore * 3) / meal.ingredients.length
+      );
+    }
+
+    let maxQuantity = 0;
+    let budgetMealsHighQuality = [];
+    for (let i = 0; i < possibilities.length; i++) {
+      if (possibilities[i].total <= parseInt(budget)) {
+        // if price is in budget
+        if (consecutiveQualityScores[i] > maxQuantity) {
+          maxQuantity = consecutiveQualityScores[i];
+          budgetMealsHighQuality = [];
+          // check if already exists
+          budgetMealsHighQuality.push(possibilities[i].combination);
+        } else if (consecutiveQualityScores[i] === maxQuantity) {
+          let exists = false;
+          for (let j = 0; j < budgetMealsHighQuality.length; j++) {
+            if (JSON.stringify(budgetMealsHighQuality[i]) === JSON.stringify(possibilities[i].combination)) {
+              exists = true;
+              break;
+            }
+          }
+          if (!exists) budgetMealsHighQuality.push(possibilities[i].combination);
+        }
+      }
+    }
+
+    console.log(budgetMealsHighQuality);
+    // return possibilties.has(max) ? possibilties.get(max) : null;
+  };
+
   const cxt = {
     mealsToDisplay: mealsToDisplay,
     filterMealsToDisplay: filterMealsToDisplay,
     getMealById: getMealById,
     getQualityPrices: getQualityPrices,
+    getIngredientsDetails: getIngredientsDetails,
+    getHighestQualityOnBudget: getHighestQualityOnBudget,
   };
 
   return <MealsContext.Provider value={cxt}>{children}</MealsContext.Provider>;
@@ -147,7 +262,6 @@ function compareMealsByAvgPriceHL(first, second) {
   if (firstAvgPrice < secondAvgPrice) return 1;
   if (firstAvgPrice > secondAvgPrice) return -1;
   return 0;
-
 }
 
 export default MealsContextProvider;
