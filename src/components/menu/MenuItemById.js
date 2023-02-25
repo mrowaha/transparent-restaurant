@@ -174,6 +174,10 @@ function MenuItemByIdComponent({
       return;
     }
     let result = getRandomMealFromBudget(id, budgetRef.current);
+    if (result === null) {
+      window.alert("No meal within budget");
+      return;
+    }
     setRandomMeal(result);
     setShowRandomModal(true);
   };
