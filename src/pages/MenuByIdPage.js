@@ -34,7 +34,7 @@ function MenuByIdPage() {
 
   return (
     <MealsContextProvider>
-      <div style={{ marginTop: "2rem" }}>
+      <div style={{ marginTop: "5rem"}}>
         <MenuItemById
           id={id}
           totalPrice={totalPrice}

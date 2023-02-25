@@ -9,11 +9,12 @@ UnitsToSuffixMap.set("litre", "l");
 
 export const MealsContext = React.createContext({
   mealsToDisplay: [],
-  filterMealsToDisplay: (byName, byDietaryPreference) => {},
+  filterMealsToDisplay: (byName, byFilter) => {},
   getMealById: (id) => {},
   getQualityPrices: (name) => {},
   getIngredientsDetails: (id) => {},
-  getHighestQualityOnBudget: (id) => {},
+  getHighestQualityOnBudget: (id, budget, random) => {},
+  getRandomMealFromBudget : (id, budget) => {},
 });
 
 function MealsContextProvider({ children }) {
@@ -131,11 +132,8 @@ function MealsContextProvider({ children }) {
     return returnArr;
   };
 
-  const getHighestQualityOnBudget = (id, budget) => {
-    let meal = {
-      ...allMealsData.current.find((meal) => meal.id === parseInt(id)),
-    };
-    //clean up the nesting
+  const mealsWithIngredientsSpread = React.useCallback((id) => {
+    let meal = {...allMealsData.current.find(meal => meal.id === id)};
     meal.ingredients = meal.ingredients.map((ingredient) => {
       let details = allIngredientsData.current.find(
         (detail) => detail.name === ingredient.name
@@ -155,6 +153,11 @@ function MealsContextProvider({ children }) {
         });
       });
     });
+    return cleanedUp;
+  }, []);
+
+  const getHighestQualityOnBudget = (id, budget, random) => {
+    let cleanedUp = mealsWithIngredientsSpread(parseInt(id));
     //generate all possibilites
     let possibilities = [];
     let tempOrderArr1, tempOrderArr2, tempOrderArr3;
@@ -197,36 +200,51 @@ function MealsContextProvider({ children }) {
         }
       }, 0);
       consecutiveQualityScores.push(
-        (qualityScore * 3) / meal.ingredients.length
+        qualityScore  / allMealsData.current.find(meal => meal.id === parseInt(id)).ingredients.length
       );
     }
 
-    let maxQuantity = 0;
+    if(random) {
+      return {possibilities : possibilities, scores : consecutiveQualityScores};
+    }
+
+    let maxQuality = 0;
     let budgetMealsHighQuality = [];
     for (let i = 0; i < possibilities.length; i++) {
-      if (possibilities[i].total <= parseInt(budget)) {
+      if (possibilities[i].total <= parseFloat(budget)) {
         // if price is in budget
-        if (consecutiveQualityScores[i] > maxQuantity) {
-          maxQuantity = consecutiveQualityScores[i];
+        if (consecutiveQualityScores[i] > maxQuality) {
+          maxQuality = consecutiveQualityScores[i];
           budgetMealsHighQuality = [];
           // check if already exists
           budgetMealsHighQuality.push(possibilities[i].combination);
-        } else if (consecutiveQualityScores[i] === maxQuantity) {
+        } else if (consecutiveQualityScores[i] === maxQuality) {
           let exists = false;
           for (let j = 0; j < budgetMealsHighQuality.length; j++) {
-            if (JSON.stringify(budgetMealsHighQuality[i]) === JSON.stringify(possibilities[i].combination)) {
+            possibilities[i].combination.every(({name : firstname}) => {
+              const index = budgetMealsHighQuality[j].findIndex(({name : secondname}) => secondname === firstname);
+              if (index === -1) return true;
               exists = true;
-              break;
-            }
+              return false;  
+            })
           }
           if (!exists) budgetMealsHighQuality.push(possibilities[i].combination);
         }
       }
     }
-
-    console.log(budgetMealsHighQuality);
-    // return possibilties.has(max) ? possibilties.get(max) : null;
+    return {maxQuality : maxQuality, meals : budgetMealsHighQuality};
   };
+
+  const getRandomMealFromBudget = (id, budget) => {
+    id = parseInt(id);
+    budget = parseFloat(budget);
+    const {possibilities, scores} = getHighestQualityOnBudget(id, budget, true);
+    let possibilitiesInBudget = possibilities.filter(({total}) => total <= budget);
+    if (possibilitiesInBudget.length === 0) return null;
+    
+    let randomIndex = Math.floor(Math.random() * possibilitiesInBudget.length);
+    return {quality : scores[randomIndex], meal : possibilitiesInBudget[randomIndex]}
+  }
 
   const cxt = {
     mealsToDisplay: mealsToDisplay,
@@ -235,6 +253,7 @@ function MealsContextProvider({ children }) {
     getQualityPrices: getQualityPrices,
     getIngredientsDetails: getIngredientsDetails,
     getHighestQualityOnBudget: getHighestQualityOnBudget,
+    getRandomMealFromBudget : getRandomMealFromBudget,
   };
 
   return <MealsContext.Provider value={cxt}>{children}</MealsContext.Provider>;

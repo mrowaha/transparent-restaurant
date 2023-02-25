@@ -11,8 +11,13 @@ import {
   Form,
   Tooltip,
   Input,
+  Modal,
 } from "antd";
-import { DoubleRightOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import {
+  DoubleRightOutlined,
+  QuestionCircleOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 import styled from "styled-components";
 
 import { MealsContext } from "../../context/MealsContext";
@@ -55,16 +60,31 @@ function MenuItemByIdComponent({
   calculateAvgQuality,
 }) {
   const [meal, setMeal] = React.useState(null);
+
+  // quality and price calculation states
   const [previousValues, setPreviousValues] = React.useState([]);
+  const [previousPrices, setPreviousPrices] = React.useState([]);
+
+  // highest quality on budget states
+  const [showBudgetModal, setShowBudgetModal] = React.useState(false);
+  const [budgetMeals, setBudgetMeals] = React.useState([]);
+
+  // random meal on budget states
+  const [showRandomModal, setShowRandomModal] = React.useState(false);
+  const [randomMeal, setRandomMeal] = React.useState({});
+
+  const {
+    getMealById,
+    getQualityPrices,
+    getHighestQualityOnBudget,
+    getRandomMealFromBudget,
+  } = React.useContext(MealsContext);
+
   const averagedQuality = React.useMemo(() => {
     if (!meal) return 0;
     return (totalQuality / meal.ingredients.length).toFixed(2);
   }, [totalQuality, meal]);
 
-  const [previousPrices, setPreviousPrices] = React.useState([]);
-
-  const { getMealById, getQualityPrices, getHighestQualityOnBudget } =
-    React.useContext(MealsContext);
   const budgetRef = React.useRef(0);
 
   React.useEffect(() => {
@@ -140,32 +160,104 @@ function MenuItemByIdComponent({
 
   const handleBudgetCheck = () => {
     if (budgetRef.current < 0) {
-      window.alert('Budget Cannot be less than 0');
+      window.alert("Budget Cannot be less than 0");
       return;
     }
     let budgetMeal = getHighestQualityOnBudget(id, budgetRef.current);
-    console.log(budgetMeal);
+    setBudgetMeals(budgetMeal);
+    setShowBudgetModal(true);
+  };
+
+  const handleRandomMeal = () => {
+    if (budgetRef.current < 0) {
+      window.alert("Budget Cannot be less than 0");
+      return;
+    }
+    let result = getRandomMealFromBudget(id, budgetRef.current);
+    setRandomMeal(result);
+    setShowRandomModal(true);
   };
 
   return (
     <>
-      <Row style={{ display : 'flex', justifyContent : 'center', marginBottom : '1rem'}}>
-        <Col span={12}>
-          <Title
-            level={5}
-            style={{ fontFamily: "Roboto", textAlign: "center" }}
-          >
-            On Budget? Enter your budget below and get the best possible quality
-          </Title>
-          <Input.Search
-            placeholder="enter budget"
-            type="number"
-            min={0}
-            onSearch={handleBudgetCheck}
-            onChange={(e) => (budgetRef.current = e.target.value)}
-          />
-        </Col>
-      </Row>
+      <Modal
+        title={"Searches"}
+        centered={true}
+        closable={false}
+        open={showBudgetModal}
+        okText="Close"
+        onOk={() => setShowBudgetModal(false)}
+        onCancel={() => setShowBudgetModal(false)}
+        okButtonProps={{
+          className: "btn-filled",
+          shape: "round",
+          style: { width: "fit-content" },
+        }}
+        cancelButtonProps={{ style: { display: "none" } }}
+      >
+        <BudgetMenuModal ref={budgetRef} {...budgetMeals} />
+      </Modal>
+      <Modal
+        title={"Random Meal"}
+        centered={true}
+        closable={false}
+        open={showRandomModal}
+        okText="Close"
+        cancelText="Again"
+        onOk={() => setShowRandomModal(false)}
+        onCancel={handleRandomMeal}
+        okButtonProps={{
+          className: "btn-filled",
+          shape: "round",
+          style: { width: "fit-content" },
+        }}
+        cancelButtonProps={{
+          className : 'btn-outlined',
+          shape : 'round',
+          style : {width : 'fit-content'}
+        }}
+      >
+        <RandomMenuModal ref={budgetRef} {...randomMeal} />
+      </Modal>
+
+      <div style={{ width: "80%", margin: "0 auto" }}>
+        <Row
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "1rem",
+          }}
+          gutter={[0, 10]}
+        >
+          <Col span={24}>
+            <Title
+              level={5}
+              style={{ fontFamily: "Roboto", textAlign: "center" }}
+            >
+              On Budget? Enter your budget below and get the best possible
+              quality
+            </Title>
+            <Input.Search
+              placeholder="enter budget"
+              type="number"
+              min={0}
+              onSearch={handleBudgetCheck}
+              onChange={(e) => (budgetRef.current = e.target.value)}
+            />
+          </Col>
+          <Col span={4}>
+            <Button
+              type="primary"
+              shape="round"
+              className="btn-outlined"
+              icon={<SyncOutlined />}
+              onClick={handleRandomMeal}
+            >
+              Randomize On Budget
+            </Button>
+          </Col>
+        </Row>
+      </div>
 
       <Form
         style={{ display: "flex", justifyContent: "center" }}
@@ -425,5 +517,102 @@ function MenuItemOptions({
     </Col>
   );
 }
+
+const BoxedSpan = styled.span`
+  padding: 0.5rem;
+  border: 2px solid #79747e;
+  color: #79747e;
+  font-family: inherit;
+`;
+
+const BudgetMenuModal = React.forwardRef((props, ref) => {
+  return (
+    <Card>
+      <Row gutter={[20, 10]}>
+        <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
+          <Title level={5} style={{ fontFamily: "Roboto", marginRight: 5 }}>
+            Highest Quality <BoxedSpan>{props.maxQuality.toFixed(2)}</BoxedSpan>{" "}
+            is possible on budget $ <BoxedSpan>{ref.current}</BoxedSpan>
+          </Title>
+          <Tooltip title="additional charges may be applicable for food quality">
+            <QuestionCircleOutlined style={{ color: "#79747E" }} />
+          </Tooltip>
+        </Col>
+        {React.Children.toArray(
+          props.meals.map((budgetMeal, index) => {
+            let mealPrice = budgetMeal.reduce(
+              (acc, curr) => acc + (curr.quantity / 1000) * curr.price,
+              0
+            );
+            return (
+              <Col span={24}>
+                <Card
+                  title={index + 1}
+                  extra={`$${mealPrice.toFixed(2)}`}
+                  style={{ fontFamily: "Roboto" }}
+                >
+                  {React.Children.toArray(
+                    budgetMeal.map((ingredient) => {
+                      return (
+                        <p style={{ fontFamily: "Roboto" }}>
+                          {ingredient.name}{" "}
+                          <span style={{ fontWeight: "bold" }}>
+                            <small>
+                              {ingredient.parentType}({ingredient.quality})
+                            </small>
+                          </span>
+                        </p>
+                      );
+                    })
+                  )}
+                </Card>
+              </Col>
+            );
+          })
+        )}
+      </Row>
+    </Card>
+  );
+});
+
+const RandomMenuModal = React.forwardRef((props, ref) => {
+  return (
+    <Card>
+      <Row gutter={[20, 10]}>
+        <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
+          <Title level={5} style={{ fontFamily: "Roboto", marginRight: 5 }}>
+            Random Quality <BoxedSpan>{props.quality.toFixed(2)}</BoxedSpan> is
+            found for budget $ <BoxedSpan>{ref.current}</BoxedSpan>
+          </Title>
+          <Tooltip title="additional charges may be applicable for food quality">
+            <QuestionCircleOutlined style={{ color: "#79747E" }} />
+          </Tooltip>
+        </Col>
+        <Col span={24}>
+          <Card
+            title={"Price"}
+            extra={`$${props.meal.total.toFixed(2)}`}
+            style={{ fontFamily: "Roboto" }}
+          >
+            {React.Children.toArray(
+              props.meal.combination.map((ingredient) => {
+                return (
+                  <p style={{ fontFamily: "Roboto" }}>
+                    {ingredient.name}{" "}
+                    <span style={{ fontWeight: "bold" }}>
+                      <small>
+                        {ingredient.parentType}({ingredient.quality})
+                      </small>
+                    </span>
+                  </p>
+                );
+              })
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </Card>
+  );
+});
 
 export default MenuItemByIdComponent;
