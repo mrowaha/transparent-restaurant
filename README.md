@@ -1,70 +1,40 @@
-# Getting Started with Create React App
+# Transparent Restaurant
+## Ostimo Frontend Intership Task 2023
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Getting Started
+```
+1. git clone the main branch
+2. npm install to install the dependencies
+3. npm start to start the application on http://localhost:3000
+```
 
-## Available Scripts
+### Main Requirements Check
 
-In the project directory, you can run:
+1. The app allows the user to view the entire menu of the restaurant
+2. The meals in the menu are sorted by name lexicographically
+3. The user can either search the menu by name or by vegan/vegetarian filter
+4. When viewing a single meal, the ingredients are listed along with their quality options and prices
+5. Customers are able to choose between different quality options for each ingredient
+6. The total price and quality is calculated dynamically according to the task's criteria
 
-### `npm start`
+### Bonus Requirements Check
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. For a given meal, the user view a random ingredients' possibility for the given budget
+2. For a given meal, the user can view the possilities for the highest possible quality score in a given budget
+3. For a given meal, the user can also view the versions of the possibilities in detail for the highest possible quality score in a given budget
+4. The menu can be sorted according to average prices in low to high or high to low manner
+5. The cheapest version of a meal and details are listed for each meal
+6. The highest version of a meal and details are listed for each meal
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Additional Features
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Logo Bar
+2. An appealing animated banner 
+3. About Us 
+4. Nav Bar
+5. Routing/Nested Routing and Section based routing (e.g. /#aboutus or /#home)
+6. IntersectionObservers for animations
+7. Color theme
+8. Order confirmation with form validation
+9. Displaying medium quality version of the meal
+10. Debouncing the menu filters and name searches
