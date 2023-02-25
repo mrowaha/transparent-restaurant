@@ -9,7 +9,7 @@ const { Title, Paragraph, Text } = Typography;
 
 const CardWrapperDiv = styled.div`
   position: relative;
-  margin: 0 1rem;
+  margin: 12vw 1rem;
   opacity : 0;
   transition : opacity 1s ease-in;
 
