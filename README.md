@@ -1,5 +1,4 @@
 # Transparent Restaurant
-## Ostimo Frontend Intership Task 2023
 
 ### Getting Started
 ```
@@ -8,7 +7,7 @@
 3. npm start to start the application on http://localhost:3000
 ```
 
-### Main Requirements Check
+### MVP
 
 1. The app allows the user to view the entire menu of the restaurant
 2. The meals in the menu are sorted by name lexicographically
@@ -17,7 +16,7 @@
 5. Customers are able to choose between different quality options for each ingredient
 6. The total price and quality is calculated dynamically according to the task's criteria
 
-### Bonus Requirements Check
+### Advanced 
 
 1. For a given meal, the user view a random ingredients' possibility for the given budget
 2. For a given meal, the user can view the possilities for the highest possible quality score in a given budget
